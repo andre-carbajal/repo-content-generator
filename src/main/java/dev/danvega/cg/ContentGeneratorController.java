@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @Controller
@@ -39,7 +43,7 @@ public class ContentGeneratorController {
     @PostMapping("/generate")
     @ResponseBody
     public ResponseEntity<String> generate(@RequestParam(required = false) String githubUrl,
-                                                 @RequestParam(required = false) String localPath) {
+                                           @RequestParam(required = false) String localPath) {
 
         if ((githubUrl == null || githubUrl.isBlank()) && (localPath == null || localPath.isBlank())) {
             return ResponseEntity.badRequest().body("Error: Either GitHub URL or local path must be provided.");
@@ -54,6 +58,27 @@ public class ContentGeneratorController {
         } catch (Exception e) {
             log.error("Error generating content", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating content: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> downloadRepository(@RequestParam String url) {
+        try {
+            String[] parts = url.split("/");
+            String owner = parts[parts.length - 2];
+            String repo = parts[parts.length - 1];
+
+            ghService.downloadRepositoryContents(owner, repo);
+            Path outputFile = Paths.get("output", repo + ".md");
+            byte[] content = Files.readAllBytes(outputFile);
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=" + repo + ".md")
+                    .header("Content-Type", "text/markdown")
+                    .body(content);
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
+            log.error("Error downloading repository content", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
