@@ -20,11 +20,11 @@ public class ContentGeneratorController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<byte[]> downloadRepository(@RequestParam(required = false) String githubUrl,
+    public ResponseEntity<byte[]> downloadRepository(@RequestParam(required = false) String url,
                                                      @RequestParam(required = false) String localPath) {
         try {
-            String content = contentGeneratorService.generateContent(githubUrl, localPath);
-            String filename = getFilename(githubUrl, localPath);
+            String content = contentGeneratorService.generateContent(url, localPath);
+            String filename = getFilename(url, localPath);
 
             return ResponseEntity.ok()
                     .header("Content-Disposition", "attachment; filename=" + filename + ".md")
