@@ -2,10 +2,6 @@ spring:
   application:
     name: repo-content-generator
 
-gg:
-  jte:
-    developmentMode: true
-
 app:
   output:
     directory: output
@@ -17,10 +13,8 @@ github:
     - "**/*.txt"
     - "**/*.xml"
     - "**/*.java"
-    - "**/*.jte"
     - "**/*.yaml"
     - "**/*.yml"
-    - "**/*.graphqls"
     - "**/*.properties"
   excludePatterns:
     - ".mvn/**"
