@@ -15,5 +15,5 @@ record GitHubContent(
         @JsonProperty("download_url")
         String downloadUrl,
         String type,
-        String content)
-{ }
+        String content) {
+}

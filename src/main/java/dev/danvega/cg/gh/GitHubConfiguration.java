@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import java.util.List;
 
 @ConfigurationProperties(value = "github")
-public record GitHubConfiguration(String token, List<String> includePatterns, @DefaultValue("") List<String> excludePatterns) {
+public record GitHubConfiguration(String token, List<String> includePatterns,
+                                  @DefaultValue("") List<String> excludePatterns) {
 
     public GitHubConfiguration {
         if (includePatterns == null) {
