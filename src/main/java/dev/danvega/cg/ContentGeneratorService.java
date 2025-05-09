@@ -41,4 +41,22 @@ public class ContentGeneratorService {
             throw new IllegalArgumentException("Either GitHub URL or local path must be provided");
         }
     }
+
+    public String generateJavaContent(String githubUrl, String localPath) throws Exception {
+        if (githubUrl != null && !githubUrl.isBlank()) {
+            log.info("Processing GitHub URL for Java content: {}", githubUrl);
+            String[] parts = githubUrl.split("/");
+            String owner = parts[parts.length - 2];
+            String repo = parts[parts.length - 1];
+            ghService.downloadRepositoryJavaContents(owner, repo);
+            return new String(Files.readAllBytes(Paths.get(outputDirectory, repo + "-java.txt")));
+        } else if (localPath != null && !localPath.isBlank()) {
+            log.info("Processing local path for Java content: {}", localPath);
+            String outputName = Paths.get(localPath).getFileName().toString();
+            localFileService.processLocalDirectoryForJava(localPath, outputName);
+            return new String(Files.readAllBytes(Paths.get(outputDirectory, outputName + "-java.txt")));
+        } else {
+            throw new IllegalArgumentException("Either GitHub URL or local path must be provided");
+        }
+    }
 }

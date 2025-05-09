@@ -40,7 +40,7 @@ public class GitHubService {
                 .baseUrl("https://api.github.com")
                 .defaultHeader("Accept", "application/vnd.github+json")
                 .defaultHeader("X-GitHub-Api-Version", "2022-11-28")
-                .defaultHeader("Authorization", "Bearer " + config.token())  // Remove the colon after Bearer
+                .defaultHeader("Authorization", "Bearer " + config.token())
                 .build();
     }
 
@@ -61,6 +61,25 @@ public class GitHubService {
         Files.write(outputFile, contentBuilder.toString().getBytes());
 
         log.info("Repository contents written to: {}", outputFile.toAbsolutePath());
+    }
+
+    /**
+     * Downloads only Java files from a specified GitHub repository and writes them to a text file.
+     *
+     * @param owner The owner of the repository.
+     * @param repo  The name of the repository.
+     * @throws IOException If an I/O error occurs.
+     */
+    public void downloadRepositoryJavaContents(String owner, String repo) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        downloadJavaContentsRecursively(owner, repo, "", contentBuilder);
+
+        Path outputDir = Paths.get("output");
+        Files.createDirectories(outputDir);
+        Path outputFile = outputDir.resolve(repo + "-java.txt");
+        Files.write(outputFile, contentBuilder.toString().getBytes());
+
+        log.info("Java contents written to: {}", outputFile.toAbsolutePath());
     }
 
     /**
@@ -85,6 +104,50 @@ public class GitHubService {
                 log.debug("Skipping content: {} of type {}", content.path(), content.type());
             }
         }
+    }
+
+    /**
+     * Recursively downloads only Java files from a repository directory.
+     *
+     * @param owner           The owner of the repository.
+     * @param repo            The name of the repository.
+     * @param path            The path within the repository to download.
+     * @param contentBuilder  The StringBuilder to append the content to.
+     */
+    private void downloadJavaContentsRecursively(String owner, String repo, String path, StringBuilder contentBuilder) {
+        List<GitHubContent> contents = getRepositoryContents(owner, repo, path);
+
+        for (GitHubContent content : contents) {
+            if ("file".equals(content.type()) && isJavaFile(content.path()) && !isExcludedPath(content.path())) {
+                String fileContent = getFileContent(owner, repo, content.path());
+                contentBuilder.append("File: ").append(content.path()).append("\n\n");
+                contentBuilder.append(fileContent).append("\n\n");
+            } else if ("dir".equals(content.type()) && !isExcludedDirectory(content.path())) {
+                downloadJavaContentsRecursively(owner, repo, content.path(), contentBuilder);
+            } else {
+                log.debug("Skipping content: {} of type {}", content.path(), content.type());
+            }
+        }
+    }
+
+    /**
+     * Determines whether a file is a Java file.
+     *
+     * @param filePath The file path to check.
+     * @return true if the file is a Java file, false otherwise.
+     */
+    private boolean isJavaFile(String filePath) {
+        return filePath.toLowerCase().endsWith(".java");
+    }
+
+    /**
+     * Determines whether a path should be excluded based on exclude patterns.
+     *
+     * @param path The path to check.
+     * @return true if the path should be excluded, false otherwise.
+     */
+    private boolean isExcludedPath(String path) {
+        return matchesPatterns(path, config.excludePatterns());
     }
 
     /**

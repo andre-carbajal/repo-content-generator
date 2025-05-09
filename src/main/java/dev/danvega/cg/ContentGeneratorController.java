@@ -36,6 +36,23 @@ public class ContentGeneratorController {
         }
     }
 
+    @GetMapping("/generate-java")
+    public ResponseEntity<byte[]> downloadJavaCode(@RequestParam(required = false) String url,
+                                                   @RequestParam(required = false) String localPath) {
+        try {
+            String content = contentGeneratorService.generateJavaContent(url, localPath);
+            String filename = getFilename(url, localPath);
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=" + filename + "-java.txt")
+                    .header("Content-Type", "text/plain")
+                    .body(content.getBytes());
+        } catch (Exception e) {
+            log.error("Error generating Java content", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     private String getFilename(String githubUrl, String localPath) {
         if (githubUrl != null && !githubUrl.isBlank()) {
             String[] parts = githubUrl.split("/");
@@ -46,4 +63,3 @@ public class ContentGeneratorController {
         return "output";
     }
 }
-

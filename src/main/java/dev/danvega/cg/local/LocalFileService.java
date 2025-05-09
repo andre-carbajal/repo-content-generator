@@ -55,6 +55,28 @@ public class LocalFileService {
         log.info("Local directory contents written to: {}", outputFile.toAbsolutePath());
     }
 
+    public void processLocalDirectoryForJava(String directoryPath, String outputFileName) throws IOException {
+        sourceDir = Paths.get(directoryPath).normalize().toAbsolutePath();
+        if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
+            throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
+        }
+
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<Path> paths = Files.walk(sourceDir)) {
+            paths.filter(Files::isRegularFile)
+                    .filter(this::isJavaFile)
+                    .filter(path -> !isExcludedFile(path))
+                    .forEach(file -> readFileContent(file, contentBuilder));
+        }
+
+        Path outputDir = Paths.get("output");
+        Files.createDirectories(outputDir);
+        Path outputFile = outputDir.resolve(outputFileName + "-java.txt");
+        Files.write(outputFile, contentBuilder.toString().getBytes());
+
+        log.info("Local directory Java contents written to: {}", outputFile.toAbsolutePath());
+    }
+
     private boolean shouldIncludeFile(Path filePath) {
         String relativePath = normalizePath(sourceDir.relativize(filePath));
         if (excludeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)))) {
@@ -64,6 +86,16 @@ public class LocalFileService {
             return true;
         }
         return includeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
+    }
+
+    private boolean isJavaFile(Path filePath) {
+        String fileName = filePath.getFileName().toString().toLowerCase();
+        return fileName.endsWith(".java");
+    }
+
+    private boolean isExcludedFile(Path filePath) {
+        String relativePath = normalizePath(sourceDir.relativize(filePath));
+        return excludeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
     }
 
     private void readFileContent(Path file, StringBuilder builder) {
@@ -85,5 +117,4 @@ public class LocalFileService {
     private String normalizePath(Path path) {
         return path.toString().replace('\\', '/');
     }
-
 }
