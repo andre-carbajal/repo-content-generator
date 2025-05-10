@@ -8,24 +8,3 @@ app:
 
 github:
   token: ${GITHUB_TOKEN}
-  includePatterns:
-    - "**/*.md"
-    - "**/*.txt"
-    - "**/*.xml"
-    - "**/*.java"
-    - "**/*.yaml"
-    - "**/*.yml"
-    - "**/*.properties"
-  excludePatterns:
-    - ".mvn/**"
-    - ".idea/**"
-    - "target/**"
-    - ".gitignore"
-    - ".gitattributes"
-    - "mvnw"
-    - "mvnw.cmd"
-
-logging:
-  level:
-    dev:
-      danvega: debug

@@ -1,6 +1,5 @@
 package dev.danvega.cg.local;
 
-import dev.danvega.cg.gh.GitHubConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,86 +18,82 @@ import java.util.stream.Stream;
 public class LocalFileService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalFileService.class);
-    private final GitHubConfiguration config;
-    private Path sourceDir;
-    private final List<PathMatcher> includeMatchers;
-    private final List<PathMatcher> excludeMatchers;
 
-    public LocalFileService(GitHubConfiguration config) {
-        this.config = config;
-        this.includeMatchers = config.includePatterns().stream()
-                .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
-                .collect(Collectors.toList());
-        this.excludeMatchers = config.excludePatterns().stream()
-                .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
-                .collect(Collectors.toList());
-    }
+    /**
+     * Process a local directory and generate a file containing selected files
+     * based on the provided language patterns.
+     *
+     * @param directoryPath     The path to the directory to process
+     * @param outputFileName    The base name for the output file
+     * @param includePatterns   The patterns for files to include
+     * @param excludePatterns   The patterns for files to exclude
+     * @param outputExtension   The extension for the output file
+     * @throws IOException      If an I/O error occurs
+     */
+    public void processLocalDirectoryForLanguage(
+            String directoryPath,
+            String outputFileName,
+            List<String> includePatterns,
+            List<String> excludePatterns,
+            String outputExtension) throws IOException {
 
-    public void processLocalDirectory(String directoryPath, String outputFileName) throws IOException {
-        sourceDir = Paths.get(directoryPath).normalize().toAbsolutePath();
+        Path sourceDir = Paths.get(directoryPath).normalize().toAbsolutePath();
         if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
             throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
         }
 
+        List<PathMatcher> includeMatchers = includePatterns.stream()
+                .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
+                .collect(Collectors.toList());
+
+        List<PathMatcher> excludeMatchers = excludePatterns.stream()
+                .map(pattern -> FileSystems.getDefault().getPathMatcher("glob:" + normalizePattern(pattern)))
+                .collect(Collectors.toList());
+
         StringBuilder contentBuilder = new StringBuilder();
         try (Stream<Path> paths = Files.walk(sourceDir)) {
             paths.filter(Files::isRegularFile)
-                    .filter(this::shouldIncludeFile)
-                    .forEach(file -> readFileContent(file, contentBuilder));
+                    .filter(file -> shouldIncludeFile(file, sourceDir, includeMatchers, excludeMatchers))
+                    .forEach(file -> readFileContent(file, sourceDir, contentBuilder));
         }
 
         Path outputDir = Paths.get("output");
         Files.createDirectories(outputDir);
-        Path outputFile = outputDir.resolve(outputFileName + ".md");
+        Path outputFile = outputDir.resolve(outputFileName + "." + outputExtension);
         Files.write(outputFile, contentBuilder.toString().getBytes());
 
         log.info("Local directory contents written to: {}", outputFile.toAbsolutePath());
     }
 
-    public void processLocalDirectoryForJava(String directoryPath, String outputFileName) throws IOException {
-        sourceDir = Paths.get(directoryPath).normalize().toAbsolutePath();
-        if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
-            throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
-        }
+    private boolean shouldIncludeFile(
+            Path filePath,
+            Path sourceDir,
+            List<PathMatcher> includeMatchers,
+            List<PathMatcher> excludeMatchers) {
 
-        StringBuilder contentBuilder = new StringBuilder();
-        try (Stream<Path> paths = Files.walk(sourceDir)) {
-            paths.filter(Files::isRegularFile)
-                    .filter(this::isJavaFile)
-                    .filter(path -> !isExcludedFile(path))
-                    .forEach(file -> readFileContent(file, contentBuilder));
-        }
-
-        Path outputDir = Paths.get("output");
-        Files.createDirectories(outputDir);
-        Path outputFile = outputDir.resolve(outputFileName + "-java.txt");
-        Files.write(outputFile, contentBuilder.toString().getBytes());
-
-        log.info("Local directory Java contents written to: {}", outputFile.toAbsolutePath());
-    }
-
-    private boolean shouldIncludeFile(Path filePath) {
         String relativePath = normalizePath(sourceDir.relativize(filePath));
-        if (excludeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)))) {
-            return false;
+        Path normalizedPath = Paths.get(relativePath);
+
+        for (PathMatcher matcher : excludeMatchers) {
+            if (matcher.matches(normalizedPath)) {
+                return false;
+            }
         }
+
         if (includeMatchers.isEmpty()) {
             return true;
         }
-        return includeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
+
+        for (PathMatcher matcher : includeMatchers) {
+            if (matcher.matches(normalizedPath)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private boolean isJavaFile(Path filePath) {
-        String fileName = filePath.getFileName().toString().toLowerCase();
-        return fileName.endsWith(".java");
-    }
-
-    private boolean isExcludedFile(Path filePath) {
-        String relativePath = normalizePath(sourceDir.relativize(filePath));
-        return excludeMatchers.stream().anyMatch(matcher -> matcher.matches(Paths.get(relativePath)));
-    }
-
-    private void readFileContent(Path file, StringBuilder builder) {
+    private void readFileContent(Path file, Path sourceDir, StringBuilder builder) {
         try {
             String relativePath = sourceDir.relativize(file).toString();
             String content = Files.readString(file);
