@@ -1,4 +1,4 @@
-package dev.danvega.cg.processor;
+package dev.danvega.cg.model.processor;
 
 import org.springframework.stereotype.Component;
 

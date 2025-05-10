@@ -1,30 +1,28 @@
-package dev.danvega.cg.processor;
+package dev.danvega.cg.model.processor;
 
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class PythonLanguageProcessor implements LanguageProcessor {
+public class KotlinLanguageProcessor implements LanguageProcessor {
 
     @Override
     public String getLanguageType() {
-        return "python";
+        return "kotlin";
     }
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.py");
+        return List.of("**/*.kt", "**/*.kts");
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        // Common Python files/directories to exclude
         return List.of(
-                "**/__pycache__/**",
-                "**/.venv/**",
+                "**/build/**",
                 "**/test/**",
-                "**/tests/**"
+                "**/generated/**"
         );
     }
 }

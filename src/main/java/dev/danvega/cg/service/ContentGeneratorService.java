@@ -1,9 +1,8 @@
-package dev.danvega.cg;
+package dev.danvega.cg.service;
 
-import dev.danvega.cg.gh.GitHubService;
-import dev.danvega.cg.local.LocalFileService;
-import dev.danvega.cg.processor.LanguageProcessor;
-import dev.danvega.cg.processor.LanguageProcessorRegistry;
+import dev.danvega.cg.model.processor.LanguageProcessor;
+import dev.danvega.cg.model.processor.LanguageProcessorRegistry;
+import dev.danvega.cg.util.PathUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor
 public class ContentGeneratorService {
     private static final Logger log = LoggerFactory.getLogger(ContentGeneratorService.class);
+    private final PathUtils pathUtils;
     private final GitHubService ghService;
     private final LocalFileService localFileService;
     private final LanguageProcessorRegistry processorRegistry;
@@ -31,7 +31,7 @@ public class ContentGeneratorService {
 
         log.info("Processing with language type: {}", languageType);
 
-        String outputName = getFilename(githubUrl, localPath);
+        String outputName = pathUtils.determineFilename(githubUrl, localPath);
         String outputFilename = outputName + "." + processor.getOutputExtension();
 
         if (githubUrl != null && !githubUrl.isBlank()) {
@@ -64,15 +64,5 @@ public class ContentGeneratorService {
         } else {
             throw new IllegalArgumentException("Either GitHub URL or local path must be provided");
         }
-    }
-
-    private String getFilename(String githubUrl, String localPath) {
-        if (githubUrl != null && !githubUrl.isBlank()) {
-            String[] parts = githubUrl.split("/");
-            return parts[parts.length - 1];
-        } else if (localPath != null && !localPath.isBlank()) {
-            return Paths.get(localPath).getFileName().toString();
-        }
-        return "output";
     }
 }

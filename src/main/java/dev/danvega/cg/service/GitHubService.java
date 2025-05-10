@@ -1,5 +1,7 @@
-package dev.danvega.cg.gh;
+package dev.danvega.cg.service;
 
+import dev.danvega.cg.model.GitHubContent;
+import dev.danvega.cg.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,10 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.List;
 @Service
 public class GitHubService {
     private static final Logger log = LoggerFactory.getLogger(GitHubService.class);
+    private final PathUtils pathUtils;
     private final RestClient restClient;
 
     @Value("${github.token}")
@@ -34,7 +35,8 @@ public class GitHubService {
      *
      * @param builder The RestClient.Builder to use for creating the RestClient.
      */
-    public GitHubService(RestClient.Builder builder) {
+    public GitHubService(PathUtils pathUtils, RestClient.Builder builder) {
+        this.pathUtils = pathUtils;
         this.restClient = builder
                 .baseUrl("https://api.github.com")
                 .defaultHeader("Accept", "application/vnd.github+json")
@@ -99,65 +101,16 @@ public class GitHubService {
         List<GitHubContent> contents = getRepositoryContents(client, owner, repo, path);
 
         for (GitHubContent content : contents) {
-            if ("file".equals(content.type()) && shouldIncludeFile(content.path(), includePatterns, excludePatterns)) {
+            if ("file".equals(content.type()) && pathUtils.shouldIncludeFile(content.path(), includePatterns, excludePatterns)) {
                 String fileContent = getFileContent(client, owner, repo, content.path());
                 contentBuilder.append("File: ").append(content.path()).append("\n\n");
                 contentBuilder.append(fileContent).append("\n\n");
-            } else if ("dir".equals(content.type()) && !isExcludedDirectory(content.path(), excludePatterns)) {
+            } else if ("dir".equals(content.type()) && !pathUtils.isExcludedDirectory(content.path(), excludePatterns)) {
                 downloadContentsRecursively(client, owner, repo, content.path(), contentBuilder, includePatterns, excludePatterns);
             } else {
                 log.debug("Skipping content: {} of type {}", content.path(), content.type());
             }
         }
-    }
-
-    /**
-     * Determines whether a file should be included based on include and exclude patterns.
-     *
-     * @param filePath The file path to check.
-     * @param includePatterns Patterns for files to include
-     * @param excludePatterns Patterns for files to exclude
-     * @return true if the file should be included, false otherwise.
-     */
-    private boolean shouldIncludeFile(String filePath, List<String> includePatterns, List<String> excludePatterns) {
-        if (matchesPatterns(filePath, excludePatterns)) {
-            log.debug("File {} excluded by exclude patterns", filePath);
-            return false;
-        }
-
-        return matchesPatterns(filePath, includePatterns);
-    }
-
-    /**
-     * Checks if a directory should be excluded from processing.
-     *
-     * @param dirPath The directory path to check.
-     * @param excludePatterns Patterns for directories to exclude
-     * @return true if the directory should be excluded, false otherwise.
-     */
-    private boolean isExcludedDirectory(String dirPath, List<String> excludePatterns) {
-        return matchesPatterns(dirPath, excludePatterns);
-    }
-
-    /**
-     * Checks if a given path matches any of the provided patterns.
-     *
-     * @param path The path to check.
-     * @param patterns The list of patterns to match against.
-     * @return true if the path matches any pattern, false otherwise.
-     */
-    private boolean matchesPatterns(String path, List<String> patterns) {
-        if (patterns.isEmpty()) {
-            return false;
-        }
-
-        for (String pattern : patterns) {
-            PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern.trim());
-            if (matcher.matches(Paths.get(path))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

@@ -1,29 +1,29 @@
-package dev.danvega.cg.processor;
+package dev.danvega.cg.model.processor;
 
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class JavaLanguageProcessor implements LanguageProcessor {
+public class PythonLanguageProcessor implements LanguageProcessor {
 
     @Override
     public String getLanguageType() {
-        return "java";
+        return "python";
     }
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.java");
+        return List.of("**/*.py");
     }
 
     @Override
     public List<String> getExcludePatterns() {
         return List.of(
-                "**/target/**",
-                "**/build/**",
+                "**/__pycache__/**",
+                "**/.venv/**",
                 "**/test/**",
-                "**/generated/**"
+                "**/tests/**"
         );
     }
 }

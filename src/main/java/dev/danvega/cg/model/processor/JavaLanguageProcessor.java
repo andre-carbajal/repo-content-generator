@@ -1,25 +1,26 @@
-package dev.danvega.cg.processor;
+package dev.danvega.cg.model.processor;
 
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class KotlinLanguageProcessor implements LanguageProcessor {
+public class JavaLanguageProcessor implements LanguageProcessor {
 
     @Override
     public String getLanguageType() {
-        return "kotlin";
+        return "java";
     }
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.kt", "**/*.kts");
+        return List.of("**/*.java");
     }
 
     @Override
     public List<String> getExcludePatterns() {
         return List.of(
+                "**/target/**",
                 "**/build/**",
                 "**/test/**",
                 "**/generated/**"

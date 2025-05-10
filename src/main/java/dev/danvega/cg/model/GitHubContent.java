@@ -1,8 +1,8 @@
-package dev.danvega.cg.gh;
+package dev.danvega.cg.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-record GitHubContent(
+public record GitHubContent(
         String name,
         String path,
         String sha,

@@ -1,4 +1,4 @@
-package dev.danvega.cg.gh;
+package dev.danvega.cg.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
