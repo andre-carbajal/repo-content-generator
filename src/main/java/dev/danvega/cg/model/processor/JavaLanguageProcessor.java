@@ -14,16 +14,27 @@ public class JavaLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.java");
+        return combineIncludePatterns(List.of(
+                "**/*.java",
+                "**/*.xml",
+                "**/*.gradle",
+                "**/*.pom"
+        ));
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return List.of(
+        return combineExcludePatterns(List.of(
                 "**/target/**",
                 "**/build/**",
                 "**/test/**",
-                "**/generated/**"
-        );
+                "**/generated/**",
+                ".mvn/**",
+                "mvnw",
+                "mvnw.cmd",
+                "gradle/**",
+                "gradlew",
+                "gradlew.bat"
+        ));
     }
 }

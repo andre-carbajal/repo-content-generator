@@ -14,15 +14,23 @@ public class KotlinLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.kt", "**/*.kts");
+        return combineIncludePatterns(List.of(
+                "**/*.kt",
+                "**/*.kts",
+                "**/*.java"
+        ));
     }
 
     @Override
     public List<String> getExcludePatterns() {
         return List.of(
+                "**/target/**",
                 "**/build/**",
                 "**/test/**",
-                "**/generated/**"
+                "**/generated/**",
+                "gradle/**",
+                "gradlew",
+                "gradlew.bat"
         );
     }
 }

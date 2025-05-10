@@ -14,16 +14,20 @@ public class PythonLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return List.of("**/*.py");
+        return combineIncludePatterns(List.of(
+                "**/*.py"
+        ));
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return List.of(
-                "**/__pycache__/**",
-                "**/.venv/**",
-                "**/test/**",
-                "**/tests/**"
+        return combineExcludePatterns(
+                List.of(
+                        "**/__pycache__/**",
+                        "**/.venv/**",
+                        "**/test/**",
+                        "**/tests/**"
+                )
         );
     }
 }
