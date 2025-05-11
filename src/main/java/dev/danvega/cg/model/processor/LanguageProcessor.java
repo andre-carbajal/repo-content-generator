@@ -8,7 +8,6 @@ import java.util.stream.Stream;
  * Provides default patterns for file inclusion/exclusion and methods to combine patterns.
  */
 public interface LanguageProcessor {
-
     /**
      * Returns the identifier for the programming language this processor handles.
      *
@@ -29,7 +28,7 @@ public interface LanguageProcessor {
                 "**/*.yml",
                 "**/*.yaml",
                 "**/*.properties",
-                "Dockerfile"
+                "**/Dockerfile"
         );
     }
 
@@ -41,34 +40,25 @@ public interface LanguageProcessor {
      */
     default List<String> getExcludePatterns() {
         return List.of(
-                ".gitattributes",
-                ".gitignore",
+                "**/.github/**",
+                "**/.gitattributes",
+                "**/.gitignore",
                 ".idea/**",
-                ".DS_Store",
+                ".DS_Store/**",
                 ".vscode/**"
         );
     }
 
     /**
-     * Combines the default include patterns with additional language-specific patterns.
+     * Combines two lists of file patterns into a single list.
+     * The resulting list contains all patterns from the base list followed by all patterns from the additional list.
      *
-     * @param additionalPatterns language-specific patterns to add to defaults
-     * @return combined list of include patterns
+     * @param additionalPatterns the list of additional patterns to include
+     * @param basePatterns the base list of patterns
+     * @return a combined list containing all patterns from both input lists
      */
-    default List<String> combineIncludePatterns(List<String> additionalPatterns) {
-        List<String> defaultPatterns = getIncludePatterns();
-        return Stream.concat(defaultPatterns.stream(), additionalPatterns.stream()).toList();
-    }
-
-    /**
-     * Combines the default exclude patterns with additional language-specific patterns.
-     *
-     * @param additionalPatterns language-specific patterns to add to defaults
-     * @return combined list of exclude patterns
-     */
-    default List<String> combineExcludePatterns(List<String> additionalPatterns) {
-        List<String> defaultPatterns = getExcludePatterns();
-        return Stream.concat(defaultPatterns.stream(), additionalPatterns.stream()).toList();
+    default List<String> combinePatterns(List<String> additionalPatterns, List<String> basePatterns) {
+        return Stream.concat(basePatterns.stream(), additionalPatterns.stream()).toList();
     }
 
     /**

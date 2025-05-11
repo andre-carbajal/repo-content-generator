@@ -6,7 +6,6 @@ import java.util.List;
 
 @Component
 public class JavaLanguageProcessor implements LanguageProcessor {
-
     @Override
     public String getLanguageType() {
         return "java";
@@ -14,27 +13,33 @@ public class JavaLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return combineIncludePatterns(List.of(
-                "**/*.java",
-                "**/*.xml",
-                "**/*.gradle",
-                "**/*.pom"
-        ));
+        return combinePatterns(
+                List.of(
+                        "**/*.java",
+                        "**/*.xml",
+                        "**/*.gradle",
+                        "**/*.pom"
+                ),
+                LanguageProcessor.super.getIncludePatterns()
+        );
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return combineExcludePatterns(List.of(
-                "**/target/**",
-                "**/build/**",
-                "**/test/**",
-                "**/generated/**",
-                ".mvn/**",
-                "mvnw",
-                "mvnw.cmd",
-                "gradle/**",
-                "gradlew",
-                "gradlew.bat"
-        ));
+        return combinePatterns(
+                List.of(
+                        "**/target/**",
+                        "**/build/**",
+                        "**/test/**",
+                        "**/generated/**",
+                        ".mvn/**",
+                        "mvnw",
+                        "mvnw.cmd",
+                        "gradle/**",
+                        "gradlew",
+                        "gradlew.bat"
+                ),
+                LanguageProcessor.super.getExcludePatterns()
+        );
     }
 }

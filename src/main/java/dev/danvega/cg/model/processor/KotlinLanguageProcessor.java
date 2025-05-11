@@ -6,7 +6,6 @@ import java.util.List;
 
 @Component
 public class KotlinLanguageProcessor implements LanguageProcessor {
-
     @Override
     public String getLanguageType() {
         return "kotlin";
@@ -14,23 +13,29 @@ public class KotlinLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return combineIncludePatterns(List.of(
-                "**/*.kt",
-                "**/*.kts",
-                "**/*.java"
-        ));
+        return combinePatterns(
+                List.of(
+                        "**/*.kt",
+                        "**/*.kts",
+                        "**/*.java"
+                ),
+                LanguageProcessor.super.getIncludePatterns()
+        );
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return List.of(
-                "**/target/**",
-                "**/build/**",
-                "**/test/**",
-                "**/generated/**",
-                "gradle/**",
-                "gradlew",
-                "gradlew.bat"
+        return combinePatterns(
+                List.of(
+                        "**/target/**",
+                        "**/build/**",
+                        "**/test/**",
+                        "**/generated/**",
+                        "gradle/**",
+                        "gradlew",
+                        "gradlew.bat"
+                ),
+                LanguageProcessor.super.getExcludePatterns()
         );
     }
 }

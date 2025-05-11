@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Component
 public class LanguageProcessorRegistry {
-
     private final Map<String, LanguageProcessor> processors = new HashMap<>();
 
     public LanguageProcessorRegistry(List<LanguageProcessor> languageProcessors) {
