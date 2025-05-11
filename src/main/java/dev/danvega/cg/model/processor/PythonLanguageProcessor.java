@@ -3,6 +3,7 @@ package dev.danvega.cg.model.processor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class PythonLanguageProcessor implements LanguageProcessor {
@@ -13,24 +14,29 @@ public class PythonLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return combinePatterns(
-                List.of(
-                        "**/*.py"
-                ),
-                LanguageProcessor.super.getIncludePatterns()
+        List<String> defaultPatterns = LanguageProcessor.super.getIncludePatterns();
+
+        List<String> pythonPatterns = List.of(
+                "**/*.py",
+                "**/requirements.txt"
         );
+
+        return Stream.concat(defaultPatterns.stream(), pythonPatterns.stream()).toList();
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return combinePatterns(
-                List.of(
-                        "**/__pycache__/**",
-                        "**/.venv/**",
-                        "**/test/**",
-                        "**/tests/**"
-                ),
-                LanguageProcessor.super.getExcludePatterns()
+        List<String> defaultPatterns = LanguageProcessor.super.getExcludePatterns();
+
+        List<String> pythonExcludePatterns = List.of(
+                "**/__pycache__/**",
+                "**/venv/**",
+                "**/env/**",
+                "**/.venv/**",
+                "**/.env/**",
+                "**/tests/**"
         );
+
+        return Stream.concat(defaultPatterns.stream(), pythonExcludePatterns.stream()).toList();
     }
 }

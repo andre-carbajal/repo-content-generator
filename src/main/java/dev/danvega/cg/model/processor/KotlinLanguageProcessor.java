@@ -3,6 +3,7 @@ package dev.danvega.cg.model.processor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class KotlinLanguageProcessor implements LanguageProcessor {
@@ -13,29 +14,31 @@ public class KotlinLanguageProcessor implements LanguageProcessor {
 
     @Override
     public List<String> getIncludePatterns() {
-        return combinePatterns(
-                List.of(
-                        "**/*.kt",
-                        "**/*.kts",
-                        "**/*.java"
-                ),
-                LanguageProcessor.super.getIncludePatterns()
+        List<String> defaultPatterns = LanguageProcessor.super.getIncludePatterns();
+
+        List<String> kotlinPatterns = List.of(
+                "**/*.kt",
+                "**/*.kts",
+                "**/*.java"
         );
+
+        return Stream.concat(defaultPatterns.stream(), kotlinPatterns.stream()).toList();
     }
 
     @Override
     public List<String> getExcludePatterns() {
-        return combinePatterns(
-                List.of(
-                        "**/target/**",
-                        "**/build/**",
-                        "**/test/**",
-                        "**/generated/**",
-                        "gradle/**",
-                        "gradlew",
-                        "gradlew.bat"
-                ),
-                LanguageProcessor.super.getExcludePatterns()
+        List<String> defaultPatterns = LanguageProcessor.super.getExcludePatterns();
+
+        List<String> kotlinExcludePatterns = List.of(
+                "**/target/**",
+                "**/build/**",
+                "**/test/**",
+                "**/generated/**",
+                "gradle/**",
+                "gradlew",
+                "gradlew.bat"
         );
+
+        return Stream.concat(defaultPatterns.stream(), kotlinExcludePatterns.stream()).toList();
     }
 }

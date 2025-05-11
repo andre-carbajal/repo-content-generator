@@ -86,7 +86,23 @@ public class PathUtils {
     }
 
     public boolean isExcludedDirectory(String dirPath, List<String> excludePatterns) {
-        return matchesAnyPattern(dirPath, excludePatterns);
+        if (excludePatterns == null || excludePatterns.isEmpty()) {
+            return false;
+        }
+
+        dirPath = normalizePath(dirPath);
+
+        for (String pattern : excludePatterns) {
+            String normalizedPattern = normalizePattern(pattern);
+
+            if (dirPath.equals(normalizedPattern) ||
+                    dirPath.startsWith(normalizedPattern.replace("/**", "/")) ||
+                    FileSystems.getDefault().getPathMatcher("glob:" + normalizedPattern).matches(Paths.get(dirPath))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
