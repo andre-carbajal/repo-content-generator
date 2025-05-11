@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class ContentGeneratorService {
     @Value("${app.output.directory}")
     private String outputDirectory;
 
-    public String generateContent(String githubUrl, String localPath, String languageType) throws Exception {
+    public String generateContent(String githubUrl, String localPath, String languageType, boolean onlyLanguageFiles) throws Exception {
         LanguageProcessor processor = processorRegistry.getProcessor(languageType)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported language type: " + languageType +
                         ". Supported types: " + String.join(", ", processorRegistry.getSupportedLanguages())));
@@ -33,6 +34,14 @@ public class ContentGeneratorService {
 
         String outputName = pathUtils.determineFilename(githubUrl, localPath);
         String outputFilename = outputName + "." + processor.getOutputExtension();
+
+        List<String> includePatterns;
+        if (onlyLanguageFiles) {
+            includePatterns = List.of(processor.getLanguageExtensionPattern());
+        } else {
+            includePatterns = processor.getIncludePatterns();
+        }
+        List<String> excludePatterns = processor.getExcludePatterns();
 
         if (githubUrl != null && !githubUrl.isBlank()) {
             log.info("Processing GitHub URL: {}", githubUrl);
@@ -43,8 +52,8 @@ public class ContentGeneratorService {
             ghService.downloadRepositoryContentsForLanguage(
                     owner,
                     repo,
-                    processor.getIncludePatterns(),
-                    processor.getExcludePatterns(),
+                    includePatterns,
+                    excludePatterns,
                     outputFilename
             );
 
@@ -55,8 +64,8 @@ public class ContentGeneratorService {
             localFileService.processLocalDirectoryForLanguage(
                     localPath,
                     outputName,
-                    processor.getIncludePatterns(),
-                    processor.getExcludePatterns(),
+                    includePatterns,
+                    excludePatterns,
                     processor.getOutputExtension()
             );
 

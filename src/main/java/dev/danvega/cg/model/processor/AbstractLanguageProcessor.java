@@ -59,6 +59,7 @@ public abstract class AbstractLanguageProcessor implements LanguageProcessor {
     public List<String> getIncludePatterns() {
         List<String> allPatterns = new ArrayList<>(getBaseIncludePatterns());
         allPatterns.addAll(getLanguageSpecificIncludePatterns());
+        allPatterns.add(getLanguageExtensionPattern());
         return allPatterns;
     }
 

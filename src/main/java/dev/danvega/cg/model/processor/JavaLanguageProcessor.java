@@ -13,9 +13,13 @@ public class JavaLanguageProcessor extends AbstractLanguageProcessor {
     }
 
     @Override
+    public String getLanguageExtensionPattern() {
+        return "**/*.java";
+    }
+
+    @Override
     protected List<String> getLanguageSpecificIncludePatterns() {
         return List.of(
-                "**/*.java",
                 "**/*.xml",
                 "**/*.gradle",
                 "pom.xml"

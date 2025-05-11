@@ -13,9 +13,13 @@ public class KotlinLanguageProcessor extends AbstractLanguageProcessor {
     }
 
     @Override
+    public String getLanguageExtensionPattern() {
+        return "**/*.kt";
+    }
+
+    @Override
     protected List<String> getLanguageSpecificIncludePatterns() {
         return List.of(
-                "**/*.kt",
                 "**/*.kts",
                 "**/*.java"
         );

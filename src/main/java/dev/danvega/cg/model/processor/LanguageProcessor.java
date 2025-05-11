@@ -15,6 +15,13 @@ public interface LanguageProcessor {
     String getLanguageType();
 
     /**
+     * Returns the file extension pattern for the programming language this processor handles.
+     *
+     * @return the file extension pattern as a string
+     */
+    String getLanguageExtensionPattern();
+
+    /**
      * Returns the list of file patterns to include in processing.
      *
      * @return list of file patterns to include

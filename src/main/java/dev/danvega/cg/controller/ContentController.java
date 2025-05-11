@@ -27,7 +27,8 @@ public class ContentController {
     public ResponseEntity<byte[]> downloadContent(
             @RequestParam(required = false) String url,
             @RequestParam(required = false) String localPath,
-            @RequestParam(required = false, defaultValue = "java") String type) {
+            @RequestParam(required = false, defaultValue = "java") String type,
+            @RequestParam(required = false, defaultValue = "false") boolean onlyLanguageFiles) {
 
         try {
             if (processorRegistry.getProcessor(type).isEmpty()) {
@@ -37,8 +38,7 @@ public class ContentController {
                                 .getBytes());
             }
 
-            String content = contentGeneratorService.generateContent(url, localPath, type);
-            String filename = pathUtils.determineFilename(url, localPath);
+            String content = contentGeneratorService.generateContent(url, localPath, type, onlyLanguageFiles);            String filename = pathUtils.determineFilename(url, localPath);
             String outputExtension = processorRegistry.getProcessor(type)
                     .map(LanguageProcessor::getOutputExtension)
                     .orElse("txt");
