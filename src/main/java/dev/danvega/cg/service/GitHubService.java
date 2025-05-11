@@ -102,6 +102,7 @@ public class GitHubService {
 
         for (GitHubContent content : contents) {
             if ("file".equals(content.type()) && pathUtils.shouldIncludeFile(content.path(), includePatterns, excludePatterns)) {
+                log.info("Downloading file: {}", content.path());
                 String fileContent = getFileContent(client, owner, repo, content.path());
                 contentBuilder.append("File: ").append(content.path()).append("\n\n");
                 contentBuilder.append(fileContent).append("\n\n");

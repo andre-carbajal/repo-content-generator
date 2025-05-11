@@ -16,9 +16,8 @@ public class JavaLanguageProcessor implements LanguageProcessor {
         return combinePatterns(
                 List.of(
                         "**/*.java",
-                        "**/*.xml",
-                        "**/*.gradle",
-                        "**/*.pom"
+                        "**/pom.xml",
+                        "**/*.gradle"
                 ),
                 LanguageProcessor.super.getIncludePatterns()
         );
