@@ -1,6 +1,8 @@
 # Repository Content Generator
 
-A Spring Boot web application that fetches and concatenates repository content from GitHub. This tool helps developers quickly view and aggregate content from multiple files in a GitHub repository, making it easier to analyze codebases and generate documentation.
+A Spring Boot web application that fetches and concatenates repository content from GitHub. This tool helps developers
+quickly view and aggregate content from multiple files in a GitHub repository, making it easier to analyze codebases and
+generate documentation.
 
 ## Features
 
@@ -26,7 +28,7 @@ The application uses YAML configuration. Key settings:
 
 ```yaml
 github:
-   token: ${GITHUB_TOKEN}  # Set via environment variable
+  token: ${GITHUB_TOKEN}  # Set via environment variable
 ```
 
 ## Getting Started
@@ -67,11 +69,13 @@ The application is subject to GitHub API rate limits:
 - With authentication (using a token): 5,000 requests per hour per user
 
 If you exceed these limits, you'll receive a 403 Forbidden error like this:
+
 ```
 Error generating readme: 403 Forbidden: "{"message":"API rate limit exceeded... Check out the documentation for more details."}"
 ```
 
 To avoid rate limiting issues:
+
 - Always use an authenticated token
 - Monitor your API usage through GitHub's API
 - Consider implementing request caching for frequently accessed repositories
@@ -80,10 +84,46 @@ To avoid rate limiting issues:
 You can check your current rate limit status by calling:
 `https://api.github.com/rate_limit`
 
+## Running with Docker
 
-## System Instructions 
+You can easily run this application in a containerized environment using Docker and Docker Compose. This setup ensures
+consistent builds and isolates dependencies, making it straightforward to deploy or test locally.
 
-These are the system instructions I am using in my Claude Project: 
+### Requirements
+
+- Docker (latest version recommended)
+- Docker Compose (v2 or higher)
+- Java 21+ and Maven are not required on your host when using Docker
+
+### Environment Variables
+
+- **GITHUB_TOKEN**: A GitHub Personal Access Token is required for the application to access the GitHub API. Set this
+  variable in your environment or in a `.env` file at the project root.
+
+### Build and Run Instructions
+
+1. **Build the Docker image**:
+   ```bash
+   docker build -t repo-content-generator:latest .
+   ```
+2. **Run the application**:
+   ```bash
+   docker run -d --name repo-content-generator -p 8083:8080 -e GITHUB_TOKEN=<your_github_personal_access_token> repo-content-generator:latest
+    ```
+   Optionally, you can create a `.env` file in the project root with the following content:
+   ```env
+    GITHUB_TOKEN=<your_github_personal_access_token>
+    ```
+   Then run:
+    ```bash
+   docker run -d --name repo-content-generator -p 8083:8080 --env-file .env repo-content-generator:latest
+   ```
+3. **Access the application**:
+4. Open your web browser and navigate to `http://localhost:8083` to access the application.
+
+## System Instructions
+
+These are the system instructions I am using in my Claude Project:
 
 ```text
 You are an expert technical writer specializing in writing documentation for software projects. You are tasked with writing a new README file for the given project.

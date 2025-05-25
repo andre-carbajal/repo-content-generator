@@ -1,0 +1,70 @@
+# 1. Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# 2. IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 3. Java build outputs
+/target/
+*.class
+
+# 4. Other language-specific (for completeness)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+node_modules/
+npm-debug.log
+yarn-debug.log
+/vendor/
+*.test
+.go-cache/
+
+# 5. Build and output directories
+build/
+dist/
+out/
+debug/
+output/
+tmp/
+temp/
+*.tmp
+
+# 6. Test directories
+# (Do not ignore src/test/ as it may be needed for build context)
+test/
+tests/
+*_test.go
+
+# 7. Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+.local/
+
+# 8. Documentation and markdown
+README*
+*.md
+docs/
+
+# 9. Docker and compose files
+Dockerfile*
+docker-compose*
+
+# 10. Miscellaneous
+*.log
+
+# 11. Project-specific exclusions
+# (Do not ignore .mvn/, mvnw, or mvnw.cmd as per instructions)
+# (Do not ignore src/ or pom.xml)
