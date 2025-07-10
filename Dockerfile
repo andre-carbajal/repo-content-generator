@@ -36,7 +36,7 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # Expose the default Spring Boot port
-EXPOSE 8080
+EXPOSE 8083
 
 # JVM options for container awareness and memory limits
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=80.0 -XX:+UseContainerSupport"
